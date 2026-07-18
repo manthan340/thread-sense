@@ -29,6 +29,7 @@ const TAG_FIELDS = [
 ] as const;
 
 type TagField = (typeof TAG_FIELDS)[number];
+type TaggingMode = "manual" | "smart";
 
 type TagState = Record<TagField, string[]>;
 
@@ -48,12 +49,14 @@ export function ClosetApp() {
   const [taxonomies, setTaxonomies] = useState<Taxonomies | null>(null);
   const [images, setImages] = useState<ClosetImage[]>([]);
   const [file, setFile] = useState<File | null>(null);
+  const [taggingMode, setTaggingMode] = useState<TaggingMode | null>(null);
   const [tags, setTags] = useState<TagState>(emptyTags);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTags, setEditTags] = useState<TagState>(emptyTags);
   const [drafts, setDrafts] = useState<Record<TagField, string>>(emptyDrafts);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [smartTaggingId, setSmartTaggingId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const [me, tax, list] = await Promise.all([
@@ -79,31 +82,68 @@ export function ClosetApp() {
       .finally(() => setReady(true));
   }, [load, router]);
 
+  function resetUploadForm() {
+    setFile(null);
+    setTaggingMode(null);
+    setTags(emptyTags());
+    setDrafts(emptyDrafts());
+  }
+
   async function onUpload(e: FormEvent) {
     e.preventDefault();
     if (!file) {
       setError("Choose an image to upload");
       return;
     }
+    if (!taggingMode) {
+      setError("Choose how you want to tag this image");
+      return;
+    }
+
     setBusy(true);
     setError(null);
     try {
       const body = new FormData();
       body.append("file", file);
-      for (const key of TAG_FIELDS) {
-        for (const value of tags[key]) {
-          body.append(key, value);
+      if (taggingMode === "manual") {
+        for (const key of TAG_FIELDS) {
+          for (const value of tags[key]) {
+            body.append(key, value);
+          }
         }
       }
-      await api<ClosetImage>("/images/upload", { method: "POST", body });
-      setFile(null);
-      setTags(emptyTags());
-      setDrafts(emptyDrafts());
+
+      const uploaded = await api<ClosetImage>("/images/upload", {
+        method: "POST",
+        body,
+      });
+
+      if (taggingMode === "smart") {
+        await api<ClosetImage>(`/images/${uploaded.id}/smart-tag`, {
+          method: "POST",
+        });
+      }
+
+      resetUploadForm();
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function runSmartTag(id: string) {
+    setSmartTaggingId(id);
+    setError(null);
+    try {
+      await api<ClosetImage>(`/images/${id}/smart-tag`, { method: "POST" });
+      setEditingId(null);
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Smart tagging failed");
+    } finally {
+      setSmartTaggingId(null);
     }
   }
 
@@ -250,6 +290,15 @@ export function ClosetApp() {
     return <p className="muted">Loading closet…</p>;
   }
 
+  const submitLabel =
+    busy && taggingMode === "smart"
+      ? "Smart tagging…"
+      : busy
+        ? "Uploading…"
+        : taggingMode === "smart"
+          ? "Upload & smart tag"
+          : "Upload";
+
   return (
     <div className="closet">
       <header className="topbar">
@@ -270,14 +319,61 @@ export function ClosetApp() {
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp"
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                setFile(e.target.files?.[0] ?? null);
+                setTaggingMode(null);
+                setTags(emptyTags());
+              }}
             />
           </label>
-          <div className="tag-grid multi">
-            {TAG_FIELDS.map((key) => tagMultiSelect(key, tags[key], setTags))}
-          </div>
-          <button type="submit" disabled={busy}>
-            {busy ? "Uploading…" : "Upload"}
+
+          {file && (
+            <fieldset className="tagging-mode">
+              <legend>How do you want to tag this?</legend>
+              <div className="mode-choices">
+                <label className={`mode-choice ${taggingMode === "manual" ? "selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="taggingMode"
+                    checked={taggingMode === "manual"}
+                    onChange={() => setTaggingMode("manual")}
+                  />
+                  <span>
+                    <strong>Tag myself</strong>
+                    <span className="muted">Pick tags from the lists below</span>
+                  </span>
+                </label>
+                <label className={`mode-choice ${taggingMode === "smart" ? "selected" : ""}`}>
+                  <input
+                    type="radio"
+                    name="taggingMode"
+                    checked={taggingMode === "smart"}
+                    onChange={() => setTaggingMode("smart")}
+                  />
+                  <span>
+                    <strong>Smart tagging</strong>
+                    <span className="muted">AI suggests tags from the photo</span>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+          )}
+
+          {taggingMode === "manual" && (
+            <div className="tag-grid multi">
+              {TAG_FIELDS.map((key) => tagMultiSelect(key, tags[key], setTags))}
+            </div>
+          )}
+
+          {taggingMode === "smart" && (
+            <p className="muted">
+              We&apos;ll upload the image, then ask the AI engine to tag it
+              automatically. You can edit tags afterward.
+            </p>
+          )}
+
+          <button type="submit" disabled={busy || !file || !taggingMode}>
+            {submitLabel}
           </button>
         </form>
         {error && <p className="error">{error}</p>}
@@ -326,9 +422,25 @@ export function ClosetApp() {
                         )),
                       )}
                     </div>
-                    <button type="button" className="ghost" onClick={() => startEdit(image)}>
-                      Edit tags
-                    </button>
+                    <div className="row">
+                      <button
+                        type="button"
+                        className="ghost"
+                        onClick={() => startEdit(image)}
+                      >
+                        Edit tags
+                      </button>
+                      <button
+                        type="button"
+                        className="ghost"
+                        disabled={smartTaggingId === image.id || busy}
+                        onClick={() => runSmartTag(image.id)}
+                      >
+                        {smartTaggingId === image.id
+                          ? "Smart tagging…"
+                          : "Smart tag"}
+                      </button>
+                    </div>
                   </>
                 )}
               </article>

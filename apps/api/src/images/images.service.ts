@@ -1,8 +1,11 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { AiEngineService } from '../ai-engine/ai-engine.service';
+import { mapIngestToTags } from '../ai-engine/map-ingest-to-tags';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { UpdateTagsDto } from './dto/update-tags.dto';
@@ -29,9 +32,12 @@ type TagField = (typeof TAG_FIELDS)[number];
 
 @Injectable()
 export class ImagesService {
+  private readonly logger = new Logger(ImagesService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly storage: StorageService,
+    private readonly aiEngine: AiEngineService,
   ) {}
 
   async upload(
@@ -90,6 +96,33 @@ export class ImagesService {
     const image = await this.prisma.image.update({
       where: { id },
       data: this.tagData(dto),
+    });
+
+    return this.toResponse(image);
+  }
+
+  async smartTag(userId: string, id: string) {
+    const existing = await this.prisma.image.findFirst({
+      where: { id, userId },
+    });
+    if (!existing) {
+      throw new NotFoundException('Image not found');
+    }
+
+    const imageUrl = await this.storage.getPresignedUrl(existing.key);
+    const ingest = await this.aiEngine.ingest(userId, imageUrl);
+    const tags = mapIngestToTags(ingest);
+
+    if (!ingest.items.length) {
+      this.logger.warn(
+        `smartTag: no clothing items for image ${id}` +
+          (ingest.notes ? ` (${ingest.notes})` : ''),
+      );
+    }
+
+    const image = await this.prisma.image.update({
+      where: { id },
+      data: this.tagData(tags),
     });
 
     return this.toResponse(image);

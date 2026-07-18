@@ -42,6 +42,11 @@ export class ImagesController {
     return this.images.list(user.userId);
   }
 
+  @Post(':id/smart-tag')
+  smartTag(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    return this.images.smartTag(user.userId, id);
+  }
+
   @Patch(':id/tags')
   updateTags(
     @CurrentUser() user: AuthUser,
