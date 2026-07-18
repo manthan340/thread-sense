@@ -30,17 +30,25 @@ export class AuthService {
       throw new ConflictException('Email already registered');
     }
 
+    const skipVerification = this.skipEmailVerification();
     const passwordHash = await bcrypt.hash(dto.password, 10);
     const user = await this.prisma.user.create({
-      data: { email, passwordHash },
+      data: { email, passwordHash, emailVerified: skipVerification },
     });
 
-    await this.issueAndSendVerification(user.id, user.email);
+    if (!skipVerification) {
+      await this.issueAndSendVerification(user.id, user.email);
+    }
 
     return {
-      message:
-        'Registered successfully. Check your email to verify your account.',
-      user: { id: user.id, email: user.email, emailVerified: false },
+      message: skipVerification
+        ? 'Registered successfully. You can log in now.'
+        : 'Registered successfully. Check your email to verify your account.',
+      user: {
+        id: user.id,
+        email: user.email,
+        emailVerified: user.emailVerified,
+      },
     };
   }
 
@@ -56,7 +64,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    if (!user.emailVerified) {
+    if (!user.emailVerified && !this.skipEmailVerification()) {
       throw new UnauthorizedException(
         'Email not verified. Check your inbox or resend verification.',
       );
@@ -212,5 +220,10 @@ export class AuthService {
 
   private webOrigin() {
     return this.config.get<string>('WEB_ORIGIN', 'http://localhost:3000');
+  }
+
+  /** Local/dev only — set SKIP_EMAIL_VERIFICATION=true in apps/api/.env */
+  private skipEmailVerification() {
+    return this.config.get<string>('SKIP_EMAIL_VERIFICATION') === 'true';
   }
 }

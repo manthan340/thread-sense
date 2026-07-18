@@ -1,15 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsEnum, IsOptional } from 'class-validator';
-import {
-  Category,
-  Color,
-  Formality,
-  Material,
-  Occasion,
-  Pattern,
-  Season,
-  Style,
-} from '@prisma/client';
+import { IsOptional, IsString } from 'class-validator';
 
 const emptyToUndefined = ({ value }: { value: unknown }) =>
   value === '' || value === null ? undefined : value;
@@ -17,41 +7,41 @@ const emptyToUndefined = ({ value }: { value: unknown }) =>
 export class UpdateTagsDto {
   @IsOptional()
   @Transform(emptyToUndefined)
-  @IsEnum(Category)
-  category?: Category;
+  @IsString()
+  category?: string;
 
   @IsOptional()
   @Transform(emptyToUndefined)
-  @IsEnum(Color)
-  color?: Color;
+  @IsString()
+  color?: string;
 
   @IsOptional()
   @Transform(emptyToUndefined)
-  @IsEnum(Season)
-  season?: Season;
+  @IsString()
+  season?: string;
 
   @IsOptional()
   @Transform(emptyToUndefined)
-  @IsEnum(Occasion)
-  occasion?: Occasion;
+  @IsString()
+  occasion?: string;
 
   @IsOptional()
   @Transform(emptyToUndefined)
-  @IsEnum(Style)
-  style?: Style;
+  @IsString()
+  style?: string;
 
   @IsOptional()
   @Transform(emptyToUndefined)
-  @IsEnum(Material)
-  material?: Material;
+  @IsString()
+  material?: string;
 
   @IsOptional()
   @Transform(emptyToUndefined)
-  @IsEnum(Pattern)
-  pattern?: Pattern;
+  @IsString()
+  pattern?: string;
 
   @IsOptional()
   @Transform(emptyToUndefined)
-  @IsEnum(Formality)
-  formality?: Formality;
+  @IsString()
+  formality?: string;
 }

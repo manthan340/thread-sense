@@ -53,11 +53,12 @@ npm run dev
 
 ## Auth flows
 
-1. **Register** at `/register` — creates an unverified user and sends a verification email (Mailpit).
-2. Open **Mailpit** → click the verify link → lands on `/verify-email`.
-3. **Log in** at `/login` (blocked until verified).
-4. **Forgot password** → Mailpit reset link → `/reset-password`.
-5. **Resend verification** at `/resend-verification` if needed.
+Locally, `SKIP_EMAIL_VERIFICATION=true` (default in `.env.example`) marks new users verified and allows login without Mailpit.
+
+1. **Register** at `/register` — then **log in** at `/login`.
+2. **Forgot password** → Mailpit reset link → `/reset-password`.
+
+To exercise the full email flow, set `SKIP_EMAIL_VERIFICATION=false`, then use Mailpit for verify / resend.
 
 ## Closet flows
 
@@ -73,8 +74,8 @@ Images are stored in MinIO under `closet/<userId>/…`. Tags and ownership live 
 
 | Method | Path | Auth | Notes |
 |--------|------|------|-------|
-| POST | `/auth/register` | no | Sends verification email |
-| POST | `/auth/login` | no | Requires verified email |
+| POST | `/auth/register` | no | Sends verification email unless skipped |
+| POST | `/auth/login` | no | Requires verified email unless skipped |
 | GET | `/auth/me` | JWT | Current user |
 | POST | `/auth/verify-email` | no | `{ token }` |
 | POST | `/auth/resend-verification` | no | `{ email }` |
