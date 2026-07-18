@@ -1,0 +1,22 @@
+{
+  "name": "thread-sense",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Your personal style assistant!",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev -w @thread-sense/api\" \"npm run dev -w @thread-sense/web\"",
+    "dev:api": "npm run dev -w @thread-sense/api",
+    "dev:web": "npm run dev -w @thread-sense/web",
+    "build": "npm run build -w @thread-sense/api && npm run build -w @thread-sense/web",
+    "prisma:generate": "npm run prisma:generate -w @thread-sense/api",
+    "prisma:migrate": "npm run prisma:migrate -w @thread-sense/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.4"
+  }
+}
