@@ -11,8 +11,6 @@ export default function LoginPage() {
         <Link href="/register">Create account</Link>
         {" · "}
         <Link href="/forgot-password">Forgot password</Link>
-        {" · "}
-        <Link href="/resend-verification">Resend verification</Link>
       </p>
     </main>
   );

@@ -21,12 +21,19 @@ export function AuthForm({ mode }: { mode: Mode }) {
     setLoading(true);
     try {
       if (mode === "register") {
-        const data = await api<{ message: string }>("/auth/register", {
+        const data = await api<{
+          message: string;
+          user: { emailVerified: boolean };
+        }>("/auth/register", {
           method: "POST",
           auth: false,
           body: JSON.stringify({ email, password }),
         });
-        setMessage(data.message);
+        if (data.user.emailVerified) {
+          router.push("/login");
+        } else {
+          setMessage(data.message);
+        }
       } else {
         const data = await api<{
           accessToken: string;

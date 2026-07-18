@@ -5,9 +5,7 @@ export default function RegisterPage() {
   return (
     <main className="page narrow">
       <h1>Create account</h1>
-      <p className="muted">
-        After registering, open Mailpit to verify your email, then log in.
-      </p>
+      <p className="muted">Create an account, then log in.</p>
       <AuthForm mode="register" />
       <p className="links">
         <Link href="/login">Already have an account?</Link>
