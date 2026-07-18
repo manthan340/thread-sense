@@ -3,16 +3,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import {
-  Category,
-  Color,
-  Formality,
-  Material,
-  Occasion,
-  Pattern,
-  Season,
-  Style,
-} from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { UpdateTagsDto } from './dto/update-tags.dto';
@@ -61,14 +51,14 @@ export class ImagesService {
         mimeType: file.mimetype,
         size: file.size,
         userId,
-        category: this.parseEnum(Category, tags.category),
-        color: this.parseEnum(Color, tags.color),
-        season: this.parseEnum(Season, tags.season),
-        occasion: this.parseEnum(Occasion, tags.occasion),
-        style: this.parseEnum(Style, tags.style),
-        material: this.parseEnum(Material, tags.material),
-        pattern: this.parseEnum(Pattern, tags.pattern),
-        formality: this.parseEnum(Formality, tags.formality),
+        category: this.optionalString(tags.category),
+        color: this.optionalString(tags.color),
+        season: this.optionalString(tags.season),
+        occasion: this.optionalString(tags.occasion),
+        style: this.optionalString(tags.style),
+        material: this.optionalString(tags.material),
+        pattern: this.optionalString(tags.pattern),
+        formality: this.optionalString(tags.formality),
       },
     });
 
@@ -108,18 +98,11 @@ export class ImagesService {
     return this.toResponse(image);
   }
 
-  private parseEnum<T extends Record<string, string>>(
-    enumObj: T,
-    value: string | undefined,
-  ): T[keyof T] | undefined {
+  private optionalString(value: string | undefined): string | undefined {
     if (value === undefined || value === '') {
       return undefined;
     }
-    const values = Object.values(enumObj);
-    if (!values.includes(value)) {
-      throw new BadRequestException(`Invalid taxonomy value: ${value}`);
-    }
-    return value as T[keyof T];
+    return value;
   }
 
   private async toResponse(image: {
@@ -127,14 +110,14 @@ export class ImagesService {
     key: string;
     mimeType: string;
     size: number;
-    category: Category | null;
-    color: Color | null;
-    season: Season | null;
-    occasion: Occasion | null;
-    style: Style | null;
-    material: Material | null;
-    pattern: Pattern | null;
-    formality: Formality | null;
+    category: string | null;
+    color: string | null;
+    season: string | null;
+    occasion: string | null;
+    style: string | null;
+    material: string | null;
+    pattern: string | null;
+    formality: string | null;
     createdAt: Date;
     updatedAt: Date;
   }) {

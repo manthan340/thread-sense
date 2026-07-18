@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   api,
@@ -64,11 +64,6 @@ export function ClosetApp() {
       })
       .finally(() => setReady(true));
   }, [load, router]);
-
-  const taxonomyEntries = useMemo(
-    () => (taxonomies ? TAG_FIELDS.map((key) => [key, taxonomies[key] ?? []] as const) : []),
-    [taxonomies],
-  );
 
   async function onUpload(e: FormEvent) {
     e.preventDefault();
@@ -135,6 +130,34 @@ export function ClosetApp() {
     router.push("/login");
   }
 
+  function tagInput(
+    key: TagField,
+    value: string,
+    onChange: (next: string) => void,
+  ) {
+    const listId = `suggestions-${key}`;
+    const options = taxonomies?.[key] ?? [];
+    return (
+      <label key={key}>
+        {key}
+        <input
+          type="text"
+          value={value}
+          list={options.length ? listId : undefined}
+          placeholder={`Any ${key}`}
+          onChange={(e) => onChange(e.target.value)}
+        />
+        {options.length > 0 && (
+          <datalist id={listId}>
+            {options.map((opt) => (
+              <option key={opt} value={opt} />
+            ))}
+          </datalist>
+        )}
+      </label>
+    );
+  }
+
   if (!ready) {
     return <p className="muted">Loading closet…</p>;
   }
@@ -163,24 +186,11 @@ export function ClosetApp() {
             />
           </label>
           <div className="tag-grid">
-            {taxonomyEntries.map(([key, options]) => (
-              <label key={key}>
-                {key}
-                <select
-                  value={tags[key]}
-                  onChange={(e) =>
-                    setTags((prev) => ({ ...prev, [key]: e.target.value }))
-                  }
-                >
-                  <option value="">—</option>
-                  {options.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ))}
+            {TAG_FIELDS.map((key) =>
+              tagInput(key, tags[key], (next) =>
+                setTags((prev) => ({ ...prev, [key]: next })),
+              ),
+            )}
           </div>
           <button type="submit" disabled={busy}>
             {busy ? "Uploading…" : "Upload"}
@@ -201,27 +211,11 @@ export function ClosetApp() {
                 <img src={image.url} alt="Closet item" />
                 {editingId === image.id ? (
                   <div className="tag-grid compact">
-                    {taxonomyEntries.map(([key, options]) => (
-                      <label key={key}>
-                        {key}
-                        <select
-                          value={editTags[key]}
-                          onChange={(e) =>
-                            setEditTags((prev) => ({
-                              ...prev,
-                              [key]: e.target.value,
-                            }))
-                          }
-                        >
-                          <option value="">—</option>
-                          {options.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                    ))}
+                    {TAG_FIELDS.map((key) =>
+                      tagInput(key, editTags[key], (next) =>
+                        setEditTags((prev) => ({ ...prev, [key]: next })),
+                      ),
+                    )}
                     <div className="row">
                       <button
                         type="button"
