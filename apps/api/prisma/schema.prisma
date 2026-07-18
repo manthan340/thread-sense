@@ -41,14 +41,14 @@ model Image {
   key       String   @unique
   mimeType  String
   size      Int
-  category  String?
-  color     String?
-  season    String?
-  occasion  String?
-  style     String?
-  material  String?
-  pattern   String?
-  formality String?
+  category  String[] @default([])
+  color     String[] @default([])
+  season    String[] @default([])
+  occasion  String[] @default([])
+  style     String[] @default([])
+  material  String[] @default([])
+  pattern   String[] @default([])
+  formality String[] @default([])
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())

@@ -1,47 +1,68 @@
 import { Transform } from 'class-transformer';
-import { IsOptional, IsString } from 'class-validator';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
-const emptyToUndefined = ({ value }: { value: unknown }) =>
-  value === '' || value === null ? undefined : value;
+/** Accept a string, comma-separated string, or string[]; normalize to string[]. */
+const toStringArray = ({ value }: { value: unknown }): string[] | undefined => {
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+
+  const raw = Array.isArray(value) ? value : [value];
+  const values = raw
+    .flatMap((entry) => String(entry).split(','))
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+  // Deduplicate while preserving order
+  return [...new Set(values)];
+};
 
 export class UpdateTagsDto {
   @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  category?: string;
+  @Transform(toStringArray)
+  @IsArray()
+  @IsString({ each: true })
+  category?: string[];
 
   @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  color?: string;
+  @Transform(toStringArray)
+  @IsArray()
+  @IsString({ each: true })
+  color?: string[];
 
   @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  season?: string;
+  @Transform(toStringArray)
+  @IsArray()
+  @IsString({ each: true })
+  season?: string[];
 
   @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  occasion?: string;
+  @Transform(toStringArray)
+  @IsArray()
+  @IsString({ each: true })
+  occasion?: string[];
 
   @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  style?: string;
+  @Transform(toStringArray)
+  @IsArray()
+  @IsString({ each: true })
+  style?: string[];
 
   @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  material?: string;
+  @Transform(toStringArray)
+  @IsArray()
+  @IsString({ each: true })
+  material?: string[];
 
   @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  pattern?: string;
+  @Transform(toStringArray)
+  @IsArray()
+  @IsString({ each: true })
+  pattern?: string[];
 
   @IsOptional()
-  @Transform(emptyToUndefined)
-  @IsString()
-  formality?: string;
+  @Transform(toStringArray)
+  @IsArray()
+  @IsString({ each: true })
+  formality?: string[];
 }

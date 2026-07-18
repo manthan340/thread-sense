@@ -1,6 +1,13 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import {
+  Dispatch,
+  FormEvent,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { useRouter } from "next/navigation";
 import {
   api,
@@ -23,10 +30,16 @@ const TAG_FIELDS = [
 
 type TagField = (typeof TAG_FIELDS)[number];
 
-type TagState = Record<TagField, string>;
+type TagState = Record<TagField, string[]>;
 
 const emptyTags = (): TagState =>
-  Object.fromEntries(TAG_FIELDS.map((k) => [k, ""])) as TagState;
+  Object.fromEntries(TAG_FIELDS.map((k) => [k, []])) as TagState;
+
+function normalizeTags(values: string[] | string | null | undefined): string[] {
+  if (!values) return [];
+  if (Array.isArray(values)) return values.filter(Boolean);
+  return values ? [values] : [];
+}
 
 export function ClosetApp() {
   const router = useRouter();
@@ -38,6 +51,7 @@ export function ClosetApp() {
   const [tags, setTags] = useState<TagState>(emptyTags);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editTags, setEditTags] = useState<TagState>(emptyTags);
+  const [drafts, setDrafts] = useState<Record<TagField, string>>(emptyDrafts);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -77,11 +91,14 @@ export function ClosetApp() {
       const body = new FormData();
       body.append("file", file);
       for (const key of TAG_FIELDS) {
-        if (tags[key]) body.append(key, tags[key]);
+        for (const value of tags[key]) {
+          body.append(key, value);
+        }
       }
       await api<ClosetImage>("/images/upload", { method: "POST", body });
       setFile(null);
       setTags(emptyTags());
+      setDrafts(emptyDrafts());
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -93,24 +110,25 @@ export function ClosetApp() {
   function startEdit(image: ClosetImage) {
     setEditingId(image.id);
     setEditTags({
-      category: image.category ?? "",
-      color: image.color ?? "",
-      season: image.season ?? "",
-      occasion: image.occasion ?? "",
-      style: image.style ?? "",
-      material: image.material ?? "",
-      pattern: image.pattern ?? "",
-      formality: image.formality ?? "",
+      category: normalizeTags(image.category),
+      color: normalizeTags(image.color),
+      season: normalizeTags(image.season),
+      occasion: normalizeTags(image.occasion),
+      style: normalizeTags(image.style),
+      material: normalizeTags(image.material),
+      pattern: normalizeTags(image.pattern),
+      formality: normalizeTags(image.formality),
     });
+    setDrafts(emptyDrafts());
   }
 
   async function saveTags(id: string) {
     setBusy(true);
     setError(null);
     try {
-      const payload: Record<string, string> = {};
+      const payload: Record<string, string[]> = {};
       for (const key of TAG_FIELDS) {
-        if (editTags[key]) payload[key] = editTags[key];
+        payload[key] = editTags[key];
       }
       await api(`/images/${id}/tags`, {
         method: "PATCH",
@@ -130,31 +148,101 @@ export function ClosetApp() {
     router.push("/login");
   }
 
-  function tagInput(
+  function toggleValue(
+    setter: Dispatch<SetStateAction<TagState>>,
     key: TagField,
     value: string,
-    onChange: (next: string) => void,
   ) {
-    const listId = `suggestions-${key}`;
+    setter((prev) => {
+      const selected = prev[key];
+      const next = selected.includes(value)
+        ? selected.filter((v) => v !== value)
+        : [...selected, value];
+      return { ...prev, [key]: next };
+    });
+  }
+
+  function addCustom(
+    setter: Dispatch<SetStateAction<TagState>>,
+    key: TagField,
+  ) {
+    const value = drafts[key].trim();
+    if (!value) return;
+    setter((prev) =>
+      prev[key].includes(value)
+        ? prev
+        : { ...prev, [key]: [...prev[key], value] },
+    );
+    setDrafts((prev) => ({ ...prev, [key]: "" }));
+  }
+
+  function removeValue(
+    setter: Dispatch<SetStateAction<TagState>>,
+    key: TagField,
+    value: string,
+  ) {
+    setter((prev) => ({
+      ...prev,
+      [key]: prev[key].filter((v) => v !== value),
+    }));
+  }
+
+  function tagMultiSelect(
+    key: TagField,
+    selected: string[],
+    setter: Dispatch<SetStateAction<TagState>>,
+  ) {
     const options = taxonomies?.[key] ?? [];
+
     return (
-      <label key={key}>
-        {key}
-        <input
-          type="text"
-          value={value}
-          list={options.length ? listId : undefined}
-          placeholder={`Any ${key}`}
-          onChange={(e) => onChange(e.target.value)}
-        />
-        {options.length > 0 && (
-          <datalist id={listId}>
-            {options.map((opt) => (
-              <option key={opt} value={opt} />
+      <fieldset key={key} className="tag-field">
+        <legend>{key}</legend>
+        {selected.length > 0 && (
+          <div className="chips inline">
+            {selected.map((value) => (
+              <button
+                key={value}
+                type="button"
+                className="chip removable"
+                onClick={() => removeValue(setter, key, value)}
+              >
+                {value} ×
+              </button>
             ))}
-          </datalist>
+          </div>
         )}
-      </label>
+        <div className="option-list">
+          {options.map((opt) => (
+            <label key={opt} className="option">
+              <input
+                type="checkbox"
+                checked={selected.includes(opt)}
+                onChange={() => toggleValue(setter, key, opt)}
+              />
+              {opt}
+            </label>
+          ))}
+        </div>
+        <div className="custom-add">
+          <input
+            type="text"
+            value={drafts[key]}
+            placeholder={`Add custom ${key}`}
+            onChange={(e) =>
+              setDrafts((prev) => ({ ...prev, [key]: e.target.value }))
+            }
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                addCustom(setter, key);
+              }
+            }}
+          />
+          <button type="button" className="ghost" onClick={() => addCustom(setter, key)}>
+            Add
+          </button>
+        </div>
+      </fieldset>
     );
   }
 
@@ -185,12 +273,8 @@ export function ClosetApp() {
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             />
           </label>
-          <div className="tag-grid">
-            {TAG_FIELDS.map((key) =>
-              tagInput(key, tags[key], (next) =>
-                setTags((prev) => ({ ...prev, [key]: next })),
-              ),
-            )}
+          <div className="tag-grid multi">
+            {TAG_FIELDS.map((key) => tagMultiSelect(key, tags[key], setTags))}
           </div>
           <button type="submit" disabled={busy}>
             {busy ? "Uploading…" : "Upload"}
@@ -210,11 +294,9 @@ export function ClosetApp() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={image.url} alt="Closet item" />
                 {editingId === image.id ? (
-                  <div className="tag-grid compact">
+                  <div className="tag-grid compact multi">
                     {TAG_FIELDS.map((key) =>
-                      tagInput(key, editTags[key], (next) =>
-                        setEditTags((prev) => ({ ...prev, [key]: next })),
-                      ),
+                      tagMultiSelect(key, editTags[key], setEditTags),
                     )}
                     <div className="row">
                       <button
@@ -236,11 +318,13 @@ export function ClosetApp() {
                 ) : (
                   <>
                     <div className="chips">
-                      {TAG_FIELDS.filter((k) => image[k]).map((k) => (
-                        <span key={k} className="chip">
-                          {k}: {image[k]}
-                        </span>
-                      ))}
+                      {TAG_FIELDS.flatMap((k) =>
+                        normalizeTags(image[k]).map((value) => (
+                          <span key={`${k}:${value}`} className="chip">
+                            {k}: {value}
+                          </span>
+                        )),
+                      )}
                     </div>
                     <button type="button" className="ghost" onClick={() => startEdit(image)}>
                       Edit tags
@@ -254,4 +338,11 @@ export function ClosetApp() {
       </section>
     </div>
   );
+}
+
+function emptyDrafts(): Record<TagField, string> {
+  return Object.fromEntries(TAG_FIELDS.map((k) => [k, ""])) as Record<
+    TagField,
+    string
+  >;
 }

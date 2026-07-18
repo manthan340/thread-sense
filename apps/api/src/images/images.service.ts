@@ -14,6 +14,19 @@ const ALLOWED_MIME = new Set([
 ]);
 const MAX_BYTES = 5 * 1024 * 1024;
 
+const TAG_FIELDS = [
+  'category',
+  'color',
+  'season',
+  'occasion',
+  'style',
+  'material',
+  'pattern',
+  'formality',
+] as const;
+
+type TagField = (typeof TAG_FIELDS)[number];
+
 @Injectable()
 export class ImagesService {
   constructor(
@@ -51,14 +64,7 @@ export class ImagesService {
         mimeType: file.mimetype,
         size: file.size,
         userId,
-        category: this.optionalString(tags.category),
-        color: this.optionalString(tags.color),
-        season: this.optionalString(tags.season),
-        occasion: this.optionalString(tags.occasion),
-        style: this.optionalString(tags.style),
-        material: this.optionalString(tags.material),
-        pattern: this.optionalString(tags.pattern),
-        formality: this.optionalString(tags.formality),
+        ...this.tagData(tags),
       },
     });
 
@@ -83,26 +89,20 @@ export class ImagesService {
 
     const image = await this.prisma.image.update({
       where: { id },
-      data: {
-        ...(dto.category !== undefined ? { category: dto.category } : {}),
-        ...(dto.color !== undefined ? { color: dto.color } : {}),
-        ...(dto.season !== undefined ? { season: dto.season } : {}),
-        ...(dto.occasion !== undefined ? { occasion: dto.occasion } : {}),
-        ...(dto.style !== undefined ? { style: dto.style } : {}),
-        ...(dto.material !== undefined ? { material: dto.material } : {}),
-        ...(dto.pattern !== undefined ? { pattern: dto.pattern } : {}),
-        ...(dto.formality !== undefined ? { formality: dto.formality } : {}),
-      },
+      data: this.tagData(dto),
     });
 
     return this.toResponse(image);
   }
 
-  private optionalString(value: string | undefined): string | undefined {
-    if (value === undefined || value === '') {
-      return undefined;
+  private tagData(tags: UpdateTagsDto): Partial<Record<TagField, string[]>> {
+    const data: Partial<Record<TagField, string[]>> = {};
+    for (const field of TAG_FIELDS) {
+      if (tags[field] !== undefined) {
+        data[field] = tags[field];
+      }
     }
-    return value;
+    return data;
   }
 
   private async toResponse(image: {
@@ -110,14 +110,14 @@ export class ImagesService {
     key: string;
     mimeType: string;
     size: number;
-    category: string | null;
-    color: string | null;
-    season: string | null;
-    occasion: string | null;
-    style: string | null;
-    material: string | null;
-    pattern: string | null;
-    formality: string | null;
+    category: string[];
+    color: string[];
+    season: string[];
+    occasion: string[];
+    style: string[];
+    material: string[];
+    pattern: string[];
+    formality: string[];
     createdAt: Date;
     updatedAt: Date;
   }) {
