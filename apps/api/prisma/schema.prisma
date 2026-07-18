@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Category {
+  tops
+  bottoms
+  dresses
+  outerwear
+  shoes
+  accessories
+  bags
+  activewear
+}
+
+enum Color {
+  black
+  white
+  gray
+  navy
+  blue
+  green
+  red
+  pink
+  yellow
+  orange
+  brown
+  beige
+  purple
+  multicolor
+}
+
+enum Season {
+  spring
+  summer
+  fall
+  winter
+  all_season
+}
+
+enum Occasion {
+  casual
+  work
+  formal
+  party
+  date
+  travel
+  sport
+}
+
+enum Style {
+  minimal
+  classic
+  streetwear
+  boho
+  preppy
+  athleisure
+  vintage
+}
+
+enum Material {
+  cotton
+  linen
+  wool
+  silk
+  denim
+  leather
+  synthetic
+  knit
+}
+
+enum Pattern {
+  solid
+  striped
+  checked
+  floral
+  printed
+  graphic
+  other
+}
+
+enum Formality {
+  very_casual
+  casual
+  smart_casual
+  business
+  formal
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  emailVerified Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  images        Image[]
+  tokens        AuthToken[]
+}
+
+enum AuthTokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+model AuthToken {
+  id        String        @id @default(uuid())
+  token     String        @unique
+  type      AuthTokenType
+  expiresAt DateTime
+  usedAt    DateTime?
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+
+  @@index([userId, type])
+}
+
+model Image {
+  id        String     @id @default(uuid())
+  key       String     @unique
+  mimeType  String
+  size      Int
+  category  Category?
+  color     Color?
+  season    Season?
+  occasion  Occasion?
+  style     Style?
+  material  Material?
+  pattern   Pattern?
+  formality Formality?
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([userId])
+}
