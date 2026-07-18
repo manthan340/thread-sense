@@ -3,40 +3,51 @@ import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { SessionStore } from '@state/session.store';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const sessionStore = inject(SessionStore);
-  const snackBar = inject(MatSnackBar);
+  const notification = inject(NotificationService);
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      let errorMessage = 'An unexpected error occurred';
+      const isAuthRequest =
+        req.url.includes('/auth/login') || req.url.includes('/auth/register');
 
-      if (error.error instanceof ErrorEvent) {
-        errorMessage = `Error: ${error.error.message}`;
-      } else {
-        if (error.status === 401) {
-          sessionStore.logout();
-          router.navigate(['/login']);
-          errorMessage = 'Session expired. Please log in again.';
-        } else if (error.status === 403) {
-          errorMessage = 'You do not have permission to perform this action.';
-        } else if (error.status === 404) {
-          errorMessage = 'Resource not found.';
-        } else if (error.status === 500) {
-          errorMessage = 'Server error. Please try again later.';
-        } else if (error.error?.message) {
-          errorMessage = error.error.message;
-        }
+      let title = 'Something Went Wrong';
+      let message = 'An unexpected error occurred. Please try again.';
+
+      if (error.status === 0) {
+        title = 'Connection Failed';
+        message =
+          'Unable to reach the server. Please check that the backend is running and try again.';
+      } else if (error.status === 401 && isAuthRequest) {
+        title = 'Invalid Credentials';
+        message = error.error?.message || 'The email or password you entered is incorrect.';
+      } else if (error.status === 401) {
+        sessionStore.logout();
+        router.navigate(['/login']);
+        title = 'Session Expired';
+        message = 'Your session has expired. Please log in again.';
+      } else if (error.status === 403) {
+        title = 'Access Denied';
+        message = 'You do not have permission to perform this action.';
+      } else if (error.status === 404) {
+        title = 'Not Found';
+        message = 'The requested resource could not be found.';
+      } else if (error.status === 409) {
+        title = 'Already Exists';
+        message = error.error?.message || 'An account with this email already exists.';
+      } else if (error.status >= 500) {
+        title = 'Server Error';
+        message = 'The server encountered a problem. Please try again later.';
+      } else if (error.error?.message) {
+        const serverMessage = error.error.message;
+        message = Array.isArray(serverMessage) ? serverMessage.join('\n') : serverMessage;
       }
 
-      snackBar.open(errorMessage, 'Close', {
-        duration: 5000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-      });
+      notification.error(title, message);
 
       return throwError(() => error);
     })

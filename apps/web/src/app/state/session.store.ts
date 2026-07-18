@@ -2,6 +2,7 @@ import { Injectable, inject, computed, effect } from '@angular/core';
 import { signalStore, withState, withMethods, withComputed, patchState } from '@ngrx/signals';
 import { Router } from '@angular/router';
 import { AuthApiService } from '@core/services/auth-api.service';
+import { NotificationService } from '@core/services/notification.service';
 import { API_CONFIG } from '@core/config/api.config';
 import { User } from '@models/view/auth.view-models';
 import { UserDto } from '@models/api/auth.models';
@@ -31,6 +32,7 @@ export const SessionStore = signalStore(
   withMethods((store) => {
     const authApi = inject(AuthApiService);
     const router = inject(Router);
+    const notification = inject(NotificationService);
 
     return {
       setUser: (user: User | null) => {
@@ -89,6 +91,11 @@ export const SessionStore = signalStore(
           return authApi.register({ email, password }).pipe(
             tap(() => {
               patchState(store, { isLoading: false });
+              notification.success(
+                'Account Created!',
+                'Your account has been created successfully. Please check your email to verify your account, then log in.',
+                'Go to Login'
+              );
               router.navigate(['/login'], {
                 queryParams: { registered: 'true' },
               });

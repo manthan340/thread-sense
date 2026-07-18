@@ -6,14 +6,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const sessionStore = inject(SessionStore);
   const token = sessionStore.accessToken();
 
+  // Skip ngrok's browser warning interstitial so API responses return JSON
+  const headers: Record<string, string> = {
+    'ngrok-skip-browser-warning': 'true',
+  };
+
   if (token && !req.url.includes('/auth/login') && !req.url.includes('/auth/register')) {
-    const cloned = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return next(cloned);
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
-  return next(req);
+  return next(req.clone({ setHeaders: headers }));
 };
