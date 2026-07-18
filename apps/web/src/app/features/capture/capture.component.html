@@ -1,0 +1,73 @@
+<div class="capture-container">
+  <mat-card class="capture-card">
+    <mat-card-header>
+      <mat-card-title>Capture Photo</mat-card-title>
+      <mat-card-subtitle>Take a photo or upload from your device</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="capture-area">
+        @if (isIdle) {
+          <div class="idle-state">
+            <mat-icon>photo_camera</mat-icon>
+            <p>Choose how to add your photo</p>
+            <div class="action-buttons">
+              <button mat-raised-button color="primary" (click)="startCamera()">
+                <mat-icon>camera_alt</mat-icon>
+                Use Camera
+              </button>
+              <button mat-raised-button (click)="fileInput.click()">
+                <mat-icon>upload</mat-icon>
+                Upload File
+              </button>
+            </div>
+            <input
+              #fileInput
+              type="file"
+              accept="image/*"
+              (change)="onFileSelected($event)"
+              style="display: none"
+            />
+          </div>
+        }
+
+        @if (isStreaming) {
+          <div class="camera-view">
+            <video #videoElement autoplay playsinline class="video-preview"></video>
+            <canvas #canvasElement style="display: none"></canvas>
+            <div class="camera-controls">
+              <button mat-fab color="warn" (click)="stopCamera()">
+                <mat-icon>close</mat-icon>
+              </button>
+              <button mat-fab color="primary" (click)="capturePhoto()" class="capture-btn">
+                <mat-icon>camera</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (isCaptured) {
+          <div class="preview-state">
+            <img [src]="captureState().previewUrl" alt="Captured photo" class="preview-image" />
+            <div class="preview-controls">
+              <button mat-raised-button (click)="retake()">
+                <mat-icon>refresh</mat-icon>
+                Retake
+              </button>
+              <button mat-raised-button color="primary" (click)="upload()">
+                <mat-icon>check</mat-icon>
+                Continue
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (isUploading) {
+          <div class="uploading-state">
+            <mat-spinner></mat-spinner>
+            <p>Uploading your photo...</p>
+          </div>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

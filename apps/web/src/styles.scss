@@ -1,0 +1,538 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+// Custom color palette - Modern vibrant colors
+$thread-sense-primary: mat.m2-define-palette(
+  (
+    50: #e8eaf6,
+    100: #c5cbe9,
+    200: #9fa8da,
+    300: #7985cb,
+    400: #5c6bc0,
+    500: #3f51b5,
+    600: #394aae,
+    700: #3140a5,
+    800: #29379d,
+    900: #1b278d,
+    A100: #c6cbff,
+    A200: #939dff,
+    A400: #606eff,
+    A700: #4757ff,
+    contrast: (
+      50: rgba(black, 0.87),
+      100: rgba(black, 0.87),
+      200: rgba(black, 0.87),
+      300: white,
+      400: white,
+      500: white,
+      600: white,
+      700: white,
+      800: white,
+      900: white,
+      A100: rgba(black, 0.87),
+      A200: white,
+      A400: white,
+      A700: white,
+    ),
+  )
+);
+
+$thread-sense-accent: mat.m2-define-palette(mat.$m2-pink-palette, 400, 300, 600);
+$thread-sense-warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+$thread-sense-theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: $thread-sense-primary,
+      accent: $thread-sense-accent,
+      warn: $thread-sense-warn,
+    ),
+    typography: mat.m2-define-typography-config(
+      $font-family: '"Inter", "Segoe UI", Roboto, sans-serif',
+    ),
+    density: 0,
+  )
+);
+
+@include mat.all-component-themes($thread-sense-theme);
+
+// PrimeNG Icons
+@import 'primeicons/primeicons.css';
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', 'Roboto', 'Helvetica Neue', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+// Import Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary-color: #3f51b5;
+  --accent-color: #ff4081;
+  --background-color: #f5f5f5;
+  --surface-color: #ffffff;
+  --error-color: #f44336;
+  --text-primary: rgba(0, 0, 0, 0.87);
+  --text-secondary: rgba(0, 0, 0, 0.54);
+  --border-color: rgba(0, 0, 0, 0.12);
+  --sidebar-width: 280px;
+  --bottom-nav-height: 56px;
+  --topbar-height: 64px;
+}
+
+.dark-theme {
+  --primary-color: #5c6bc0;
+  --accent-color: #ff4081;
+  --background-color: #121212;
+  --surface-color: #1e1e1e;
+  --error-color: #cf6679;
+  --text-primary: rgba(255, 255, 255, 0.87);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --border-color: rgba(255, 255, 255, 0.12);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.page-container {
+  padding: 24px;
+  min-height: calc(100vh - var(--topbar-height));
+}
+
+@media (max-width: 768px) {
+  .page-container {
+    padding: 16px;
+    min-height: calc(100vh - var(--topbar-height) - var(--bottom-nav-height));
+  }
+}
+
+.mat-mdc-snack-bar-container {
+  --mdc-snackbar-container-color: var(--surface-color);
+  --mat-snack-bar-button-color: var(--primary-color);
+}
+
+.full-width {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-1 {
+  margin-top: 8px;
+}
+.mt-2 {
+  margin-top: 16px;
+}
+.mt-3 {
+  margin-top: 24px;
+}
+
+.mb-1 {
+  margin-bottom: 8px;
+}
+.mb-2 {
+  margin-bottom: 16px;
+}
+.mb-3 {
+  margin-bottom: 24px;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-1 {
+  gap: 8px;
+}
+.gap-2 {
+  gap: 16px;
+}
+.gap-3 {
+  gap: 24px;
+}
+
+// ====================
+// MODERN UI ENHANCEMENTS
+// ====================
+
+// Smooth Scroll
+html {
+  scroll-behavior: smooth;
+}
+
+// Custom Scrollbar with Gradient
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  }
+}
+
+// Glassmorphism Card Style
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    box-shadow: 0 15px 45px rgba(31, 38, 135, 0.25);
+    transform: translateY(-5px);
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Animation Utility Classes
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.6s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.6s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.5s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.5s ease-out;
+}
+
+// Gradient Text
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+// Enhanced Buttons
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button {
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  overflow: hidden;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  &:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Enhanced Cards
+.mat-mdc-card {
+  border-radius: 20px !important;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  &:hover {
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+    transform: translateY(-5px);
+  }
+}
+
+// Enhanced Form Fields
+.mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    border-radius: 12px !important;
+  }
+
+  .mat-mdc-form-field-focus-overlay {
+    border-radius: 12px !important;
+  }
+
+  &.mat-focused {
+    .mat-mdc-form-field-focus-overlay {
+      opacity: 0.12 !important;
+    }
+  }
+}
+
+// Loading Spinner with Gradient
+.gradient-spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: rotate 1s linear infinite;
+  margin: 20px auto;
+}
+
+// Skeleton Loader
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 8px;
+}
+
+// Hover Glow Effect
+.hover-glow {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: inherit;
+    opacity: 0;
+    z-index: -1;
+    filter: blur(10px);
+    transition: opacity 0.3s;
+  }
+
+  &:hover::after {
+    opacity: 0.7;
+  }
+}
+
+// Floating Label Animation
+.floating-label {
+  position: relative;
+  
+  input:focus + label,
+  input:not(:placeholder-shown) + label {
+    transform: translateY(-25px) scale(0.85);
+    color: #667eea;
+  }
+
+  label {
+    position: absolute;
+    left: 16px;
+    top: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+}
+
+// Icon Animation
+.icon-bounce {
+  display: inline-block;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+// Gradient Background Variants
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-success {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.bg-gradient-danger {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.bg-gradient-warning {
+  background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+// Text Shadow for Better Readability
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+// Backdrop Blur Effect
+.backdrop-blur {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+// Stagger Animation Delay Classes
+@for $i from 1 through 10 {
+  .delay-#{$i} {
+    animation-delay: #{$i * 0.1}s;
+  }
+}

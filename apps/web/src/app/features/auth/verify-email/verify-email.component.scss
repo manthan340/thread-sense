@@ -1,0 +1,25 @@
+@import '../login/login.component.scss';
+
+.loading-state,
+.result-message {
+  text-align: center;
+  padding: 24px 0;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+}

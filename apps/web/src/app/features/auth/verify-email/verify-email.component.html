@@ -1,0 +1,26 @@
+<div class="auth-container">
+  <mat-card class="auth-card">
+    <mat-card-header>
+      <mat-card-title>Email Verification</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      @if (isLoading()) {
+        <div class="loading-state">
+          <mat-spinner></mat-spinner>
+          <p>Verifying your email...</p>
+        </div>
+      } @else {
+        <div class="result-message" [class.success]="success()" [class.error]="!success()">
+          <mat-icon [color]="success() ? 'primary' : 'warn'">
+            {{ success() ? 'check_circle' : 'error' }}
+          </mat-icon>
+          <h3>{{ success() ? 'Email Verified!' : 'Verification Failed' }}</h3>
+          <p>{{ message() }}</p>
+          <button mat-raised-button color="primary" routerLink="/login" class="full-width">
+            Go to Login
+          </button>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

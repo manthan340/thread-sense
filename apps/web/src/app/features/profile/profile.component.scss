@@ -1,0 +1,132 @@
+.profile-container {
+  max-width: 800px;
+  margin: 0 auto;
+
+  .profile-card {
+    mat-card-header {
+      margin-bottom: 24px;
+
+      mat-card-title {
+        font-size: 24px;
+        font-weight: 600;
+      }
+    }
+
+    .profile-section {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+
+      .avatar-section {
+        text-align: center;
+        padding: 24px 0;
+
+        .avatar {
+          margin: 0 auto 16px;
+          width: 120px;
+          height: 120px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: var(--primary-color);
+          border-radius: 50%;
+
+          mat-icon {
+            font-size: 96px;
+            width: 96px;
+            height: 96px;
+            color: white;
+          }
+        }
+
+        h2 {
+          font-size: 24px;
+          font-weight: 600;
+          margin-bottom: 8px;
+        }
+
+        .verified-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          background-color: rgba(76, 175, 80, 0.1);
+          color: #4caf50;
+          padding: 4px 12px;
+          border-radius: 16px;
+          font-size: 14px;
+          font-weight: 500;
+
+          mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+          }
+        }
+      }
+
+      .info-section,
+      .actions-section {
+        h3 {
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 16px;
+        }
+
+        .info-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 0;
+          border-bottom: 1px solid var(--border-color);
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .label {
+            color: var(--text-secondary);
+            font-weight: 500;
+          }
+
+          .value {
+            font-weight: 500;
+          }
+        }
+
+        .logout-btn {
+          width: 100%;
+          max-width: 300px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-container {
+    .profile-card {
+      .profile-section {
+        .avatar-section .avatar {
+          width: 96px;
+          height: 96px;
+
+          mat-icon {
+            font-size: 72px;
+            width: 72px;
+            height: 72px;
+          }
+        }
+
+        .info-section .info-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 4px;
+        }
+
+        .actions-section .logout-btn {
+          max-width: 100%;
+        }
+      }
+    }
+  }
+}

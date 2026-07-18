@@ -4,16 +4,16 @@ overview: Create a production-ready Angular frontend architecture and implementa
 todos:
   - id: audit-repo
     content: Confirm the repository is a blank starter and define the Angular bootstrap assumptions.
-    status: pending
+    status: completed
   - id: design-architecture
     content: Finalize the feature-first Angular 18+ architecture, folder structure, and state management strategy.
-    status: pending
+    status: completed
   - id: define-contracts
     content: Document the backend-coupled API, DTO, enum, and upload/camera contract assumptions for the frontend.
-    status: pending
+    status: completed
   - id: draft-implementation-plan
     content: Produce the production-ready frontend implementation plan in `implementation_frontend.md`.
-    status: pending
+    status: completed
 isProject: false
 ---
 

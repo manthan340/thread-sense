@@ -1,0 +1,62 @@
+<div class="wardrobe-container">
+  <header class="wardrobe-header">
+    <div>
+      <h1>My Wardrobe</h1>
+      <p class="subtitle">{{ images().length }} items</p>
+    </div>
+    <button mat-raised-button color="primary" routerLink="/capture">
+      <mat-icon>add</mat-icon>
+      Add Item
+    </button>
+  </header>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner></mat-spinner>
+      <p>Loading your wardrobe...</p>
+    </div>
+  } @else if (images().length === 0) {
+    <div class="empty-state">
+      <mat-icon>checkroom</mat-icon>
+      <h3>Your wardrobe is empty</h3>
+      <p>Start adding items to build your digital wardrobe</p>
+      <button mat-raised-button color="primary" routerLink="/capture">
+        <mat-icon>add_a_photo</mat-icon>
+        Add Your First Item
+      </button>
+    </div>
+  } @else {
+    <div class="wardrobe-grid">
+      @for (image of images(); track image.id) {
+        <mat-card class="wardrobe-item" [routerLink]="['/analysis', image.id]">
+          <div class="image-wrapper">
+            <img [src]="image.url" [alt]="'Wardrobe item'" />
+          </div>
+          <mat-card-content>
+            <div class="item-tags">
+              @if (image.category) {
+                <span class="tag category">{{ image.category }}</span>
+              }
+              @if (image.color) {
+                <span class="tag color">{{ image.color }}</span>
+              }
+              @if (image.season) {
+                <span class="tag season">{{ image.season }}</span>
+              }
+            </div>
+            @if (image.occasion || image.style) {
+              <div class="item-meta">
+                @if (image.occasion) {
+                  <span class="meta-item">{{ image.occasion }}</span>
+                }
+                @if (image.style) {
+                  <span class="meta-item">{{ image.style }}</span>
+                }
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

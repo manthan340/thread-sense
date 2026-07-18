@@ -1,0 +1,175 @@
+<div class="dashboard-container">
+  <!-- Hero Header Section -->
+  <header class="dashboard-header animate-fade-in">
+    <div class="header-content">
+      <div class="welcome-section">
+        <div class="icon-badge animate-pulse">
+          <i class="pi pi-sparkles"></i>
+        </div>
+        <div class="welcome-text">
+          <h1 class="gradient-text">Welcome Back!</h1>
+          <p class="subtitle">Let's organize your wardrobe today</p>
+        </div>
+      </div>
+      <div class="stats-quick animate-slide-in-right delay-2">
+        <div class="stat-item">
+          <i class="pi pi-images"></i>
+          <div>
+            <span class="stat-value">{{ recentImages().length }}</span>
+            <span class="stat-label">Items</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Quick Actions Grid -->
+  <section class="quick-actions animate-fade-in delay-1">
+    <h2 class="section-title">
+      <i class="pi pi-bolt"></i>
+      Quick Actions
+    </h2>
+    
+    <div class="actions-grid">
+      <!-- Capture Card -->
+      <div class="action-card glass-card hover-glow animate-scale-in delay-2" routerLink="/capture">
+        <div class="card-icon bg-gradient-primary">
+          <i class="pi pi-camera"></i>
+        </div>
+        <div class="card-content">
+          <h3>Capture Photo</h3>
+          <p>Take or upload new items</p>
+        </div>
+        <div class="card-arrow">
+          <i class="pi pi-arrow-right"></i>
+        </div>
+      </div>
+
+      <!-- Wardrobe Card -->
+      <div class="action-card glass-card hover-glow animate-scale-in delay-3" routerLink="/wardrobe">
+        <div class="card-icon bg-gradient-success">
+          <i class="pi pi-th-large"></i>
+        </div>
+        <div class="card-content">
+          <h3>My Wardrobe</h3>
+          <p>Browse all your items</p>
+        </div>
+        <div class="card-arrow">
+          <i class="pi pi-arrow-right"></i>
+        </div>
+      </div>
+
+      <!-- Analysis Card -->
+      <div class="action-card glass-card hover-glow animate-scale-in delay-4" routerLink="/analysis">
+        <div class="card-icon bg-gradient-warning">
+          <i class="pi pi-chart-bar"></i>
+        </div>
+        <div class="card-content">
+          <h3>Analysis</h3>
+          <p>View insights & tags</p>
+        </div>
+        <div class="card-arrow">
+          <i class="pi pi-arrow-right"></i>
+        </div>
+      </div>
+
+      <!-- Profile Card -->
+      <div class="action-card glass-card hover-glow animate-scale-in delay-5" routerLink="/profile">
+        <div class="card-icon bg-gradient-danger">
+          <i class="pi pi-user"></i>
+        </div>
+        <div class="card-content">
+          <h3>Profile</h3>
+          <p>Manage your account</p>
+        </div>
+        <div class="card-arrow">
+          <i class="pi pi-arrow-right"></i>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Items Section -->
+  @if (recentImages().length > 0) {
+    <section class="recent-section animate-fade-in delay-6">
+      <div class="section-header">
+        <h2 class="section-title">
+          <i class="pi pi-clock"></i>
+          Recent Items
+        </h2>
+        <button mat-button routerLink="/wardrobe" class="view-all-btn">
+          View All
+          <i class="pi pi-arrow-right"></i>
+        </button>
+      </div>
+      
+      <div class="image-grid">
+        @for (image of recentImages(); track image.id; let i = $index) {
+          <div 
+            class="image-card glass-card animate-scale-in" 
+            [style.animation-delay]="(i * 0.1) + 's'"
+            [routerLink]="['/analysis', image.id]"
+          >
+            <div class="image-wrapper">
+              <img [src]="image.url" [alt]="'Wardrobe item'" class="item-image" />
+              <div class="image-overlay">
+                <i class="pi pi-eye"></i>
+                <span>View Details</span>
+              </div>
+            </div>
+            <div class="image-info">
+              <div class="tags">
+                @if (image.category) {
+                  <span class="tag tag-category">
+                    <i class="pi pi-tag"></i>
+                    {{ image.category }}
+                  </span>
+                }
+                @if (image.color) {
+                  <span class="tag tag-color">
+                    <i class="pi pi-palette"></i>
+                    {{ image.color }}
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  } @else if (!isLoading()) {
+    <div class="empty-state glass-card animate-scale-in delay-3">
+      <div class="empty-icon animate-float">
+        <i class="pi pi-images"></i>
+      </div>
+      <h3>No Items Yet</h3>
+      <p>Start building your digital wardrobe today</p>
+      <button mat-raised-button color="primary" routerLink="/capture" class="cta-button hover-glow">
+        <i class="pi pi-plus-circle"></i>
+        <span>Add Your First Item</span>
+      </button>
+      
+      <div class="features-list">
+        <div class="feature-item">
+          <i class="pi pi-check-circle"></i>
+          <span>Organize effortlessly</span>
+        </div>
+        <div class="feature-item">
+          <i class="pi pi-check-circle"></i>
+          <span>AI-powered tagging</span>
+        </div>
+        <div class="feature-item">
+          <i class="pi pi-check-circle"></i>
+          <span>Smart recommendations</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="gradient-spinner"></div>
+      <p>Loading your wardrobe...</p>
+    </div>
+  }
+</div>

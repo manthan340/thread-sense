@@ -1,0 +1,52 @@
+<div class="profile-container">
+  <mat-card class="profile-card">
+    <mat-card-header>
+      <mat-card-title>Profile</mat-card-title>
+      <mat-card-subtitle>Manage your account settings</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="profile-section">
+        <div class="avatar-section">
+          <div class="avatar">
+            <mat-icon>account_circle</mat-icon>
+          </div>
+          <h2>{{ user()?.email }}</h2>
+          <span class="verified-badge" *ngIf="user()?.emailVerified">
+            <mat-icon>verified</mat-icon>
+            Verified
+          </span>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="info-section">
+          <h3>Account Information</h3>
+          <div class="info-row">
+            <span class="label">Email</span>
+            <span class="value">{{ user()?.email }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Account Status</span>
+            <span class="value">{{ user()?.emailVerified ? 'Active' : 'Pending Verification' }}</span>
+          </div>
+          @if (user()?.createdAt) {
+            <div class="info-row">
+              <span class="label">Member Since</span>
+              <span class="value">{{ user()!.createdAt | date: 'longDate' }}</span>
+            </div>
+          }
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="actions-section">
+          <h3>Account Actions</h3>
+          <button mat-raised-button color="warn" (click)="logout()" class="logout-btn">
+            <mat-icon>logout</mat-icon>
+            Logout
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

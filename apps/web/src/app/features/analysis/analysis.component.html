@@ -1,0 +1,159 @@
+<div class="analysis-container">
+  @if (isLoading()) {
+    <div class="loading-state">
+      <mat-spinner></mat-spinner>
+      <p>Loading image...</p>
+    </div>
+  } @else if (image()) {
+    <div class="analysis-content">
+      <div class="image-section">
+        <mat-card class="image-card">
+          <img [src]="image()!.url" [alt]="'Item'" class="item-image" />
+          <mat-card-content>
+            <div class="image-meta">
+              <div class="meta-row">
+                <mat-icon>storage</mat-icon>
+                <span>{{ (image()!.size / 1024).toFixed(2) }} KB</span>
+              </div>
+              <div class="meta-row">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ image()!.createdAt | date: 'short' }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <div class="tags-section">
+        <mat-card class="tags-card">
+          <mat-card-header>
+            <mat-card-title>Item Tags</mat-card-title>
+            <mat-card-subtitle>
+              Classify your item for better wardrobe organization
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <form [formGroup]="tagsForm" class="tags-form">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Category</mat-label>
+                <mat-select formControlName="category">
+                  <mat-option [value]="null">None</mat-option>
+                  @for (category of taxonomies()?.category; track category) {
+                    <mat-option [value]="category">
+                      {{ category | titlecase }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Color</mat-label>
+                <mat-select formControlName="color">
+                  <mat-option [value]="null">None</mat-option>
+                  @for (color of taxonomies()?.color; track color) {
+                    <mat-option [value]="color">
+                      {{ color | titlecase }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Season</mat-label>
+                <mat-select formControlName="season">
+                  <mat-option [value]="null">None</mat-option>
+                  @for (season of taxonomies()?.season; track season) {
+                    <mat-option [value]="season">
+                      {{ season | titlecase }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Occasion</mat-label>
+                <mat-select formControlName="occasion">
+                  <mat-option [value]="null">None</mat-option>
+                  @for (occasion of taxonomies()?.occasion; track occasion) {
+                    <mat-option [value]="occasion">
+                      {{ occasion | titlecase }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Style</mat-label>
+                <mat-select formControlName="style">
+                  <mat-option [value]="null">None</mat-option>
+                  @for (style of taxonomies()?.style; track style) {
+                    <mat-option [value]="style">
+                      {{ style | titlecase }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Material</mat-label>
+                <mat-select formControlName="material">
+                  <mat-option [value]="null">None</mat-option>
+                  @for (material of taxonomies()?.material; track material) {
+                    <mat-option [value]="material">
+                      {{ material | titlecase }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Pattern</mat-label>
+                <mat-select formControlName="pattern">
+                  <mat-option [value]="null">None</mat-option>
+                  @for (pattern of taxonomies()?.pattern; track pattern) {
+                    <mat-option [value]="pattern">
+                      {{ pattern | titlecase }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Formality</mat-label>
+                <mat-select formControlName="formality">
+                  <mat-option [value]="null">None</mat-option>
+                  @for (formality of taxonomies()?.formality; track formality) {
+                    <mat-option [value]="formality">
+                      {{ formality | titlecase }}
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </form>
+          </mat-card-content>
+          <mat-card-actions class="card-actions">
+            <button mat-stroked-button routerLink="/wardrobe">
+              <mat-icon>arrow_back</mat-icon>
+              Back to Wardrobe
+            </button>
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="saveTags()"
+              [disabled]="isSaving()"
+            >
+              @if (isSaving()) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                <ng-container>
+                  <mat-icon>save</mat-icon>
+                  <span>Save Tags</span>
+                </ng-container>
+              }
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      </div>
+    </div>
+  }
+</div>
